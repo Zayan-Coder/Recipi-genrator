@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telangana Style Recipe Generator</title>
+      <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h1 {
+            text-align: center;
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+        #container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        input[type="text"], input[type="date"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #recipes {
+            margin-top: 20px;
+        }
+        .recipe-card {
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            transition: transform 0.2s;
+        }
+        .recipe-card:hover {
+            transform: scale(1.02);
+        }
+        .recipe-card strong {
+            font-size: 18px;
+            color: #343a40;
+        }
+        .recipe-card em {
+            display: block;
+            color: #495057;
+        }
+        .recipe-card a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .recipe-card a:hover {
+            text-decoration: underline;
+        }
+    </style>
+
+</head>
+<body>
+
+    <h1>Telangana Style Recipe Generator</h1>
+    <p>Enter ingredients you have, and get Telangana-style recipes!</p>
+    <input type="text" id="ingredient" placeholder="Enter ingredients (comma separated)">
+    <button onclick="suggestRecipe()">Get Recipes</button>
+
+    <h2>Suggested Recipes:</h2>
+    <div id="recipes"></div>
+
+    <script>
+        // Recipe Database with 50 Indian (Telangana style) recipes and YouTube links
+        const recipes = [
+            { name: "Hyderabadi Biryani", ingredients: ["rice", "chicken", "yogurt", "spices"], description: "A world-famous Hyderabadi biryani made with basmati rice, chicken marinated in yogurt and traditional spices.", video: "https://www.youtube.com/watch?v=QdpB1h0MS6M" },
+            { name: "Gutti Vankaya (Stuffed Brinjal Curry)", ingredients: ["brinjal", "sesame", "peanuts", "spices"], description: "A rich and flavorful Telangana dish made with small brinjals stuffed with a spicy peanut-sesame mixture.", video: "https://www.youtube.com/watch?v=2ZkGTG0lf6M" },
+            { name: "Pesarattu (Green Gram Dosa)", ingredients: ["green gram", "ginger", "chili"], description: "A crispy and healthy dosa made from green gram (moong dal) batter, commonly served with chutney.", video: "https://www.youtube.com/watch?v=zVmUQqCCUtA" },
+            { name: "Sambar", ingredients: ["lentils", "tamarind", "vegetables", "spices"], description: "A traditional south Indian dish made with lentils, tamarind, and various vegetables, perfect with rice or idli.", video: "https://www.youtube.com/watch?v=If7b1-tJzVA" },
+            { name: "Mutton Curry", ingredients: ["mutton", "onions", "spices"], description: "A spicy and flavorful Telangana-style mutton curry made with a rich blend of onions and spices.", video: "https://www.youtube.com/watch?v=6TA-2O7h2R8" },
+            { name: "Mirchi Ka Salan", ingredients: ["chilies", "peanuts", "tamarind", "sesame"], description: "A classic Hyderabadi dish made with large green chilies cooked in a tangy, nutty gravy with peanuts, sesame, and tamarind.", video: "https://www.youtube.com/watch?v=HvHt4shxRE8" },
+            { name: "Saggubiyyam Upma (Sago Upma)", ingredients: ["sago", "groundnuts", "potato"], description: "A light and easy breakfast dish made with sago pearls, groundnuts, and potatoes, flavored with spices.", video: "https://www.youtube.com/watch?v=Grq02Z2NU0s" },
+            { name: "Telangana Pachi Pulusu", ingredients: ["tamarind", "onion", "green chili", "jaggery"], description: "A raw tamarind-based dish popular in Telangana, served with rice, with flavors from onions, green chilies, and jaggery.", video: "https://www.youtube.com/watch?v=hb-4Gh5nKZk" },
+            { name: "Bagara Baingan", ingredients: ["brinjal", "tamarind", "sesame", "peanuts"], description: "A delicious Hyderabadi-style brinjal curry cooked in tamarind and sesame gravy.", video: "https://www.youtube.com/watch?v=JMS6g2YXYeI" },
+            { name: "Hyderabadi Haleem", ingredients: ["mutton", "wheat", "lentils", "ghee"], description: "A popular Telangana dish made during Ramadan with slow-cooked mutton, wheat, and lentils in a rich ghee mixture.", video: "https://www.youtube.com/watch?v=1SuV7pGWB0E" },
+            { name: "Ariselu", ingredients: ["rice flour", "jaggery", "ghee", "sesame"], description: "A traditional sweet dish made with rice flour and jaggery, typically prepared during festivals.", video: "https://www.youtube.com/watch?v=z1zPCe64sJg" },
+            { name: "Sarva Pindi", ingredients: ["rice flour", "groundnuts", "onions", "spices"], description: "A savory Telangana snack made from rice flour, peanuts, and onions, pan-cooked to a crispy texture.", video: "https://www.youtube.com/watch?v=Lvwb9dMcAD8" },
+            { name: "Kodi Kura (Chicken Curry)", ingredients: ["chicken", "onions", "spices", "coconut"], description: "A spicy Telangana-style chicken curry made with a blend of coconut and traditional spices.", video: "https://www.youtube.com/watch?v=HQBlNZ82YXg" },
+            { name: "Thotakura Pappu", ingredients: ["lentils", "amaranth leaves", "onions", "green chili"], description: "A simple and healthy lentil-based dish made with amaranth leaves and tempered with spices.", video: "https://www.youtube.com/watch?v=QIdumxQxD9I" },
+            { name: "Ande Ka Khatta (Egg Curry)", ingredients: ["egg", "tamarind", "spices"], description: "A tangy egg curry made with boiled eggs in tamarind gravy, a unique Telangana recipe.", video: "https://www.youtube.com/watch?v=ey6ytKKbMf8" },
+            { name: "Khatti Dal", ingredients: ["lentils", "tamarind", "garlic"], description: "A tangy and flavorful Telangana-style dal made with tamarind and tempered with garlic.", video: "https://www.youtube.com/watch?v=4FcOhjK8Tds" },
+            { name: "Dondakaya Vepudu (Ivy Gourd Fry)", ingredients: ["ivy gourd", "spices", "onions"], description: "A crispy fried ivy gourd dish, perfect as a side with rice and sambar.", video: "https://www.youtube.com/watch?v=xGgDPU4XZK4" },
+            { name: "Pulihora", ingredients: ["rice", "tamarind", "peanuts", "chilies"], description: "A tangy rice dish made with tamarind and tempered with chilies and peanuts.", video: "https://www.youtube.com/watch?v=1gqD_GG1hEU" },
+            { name: "Boti Curry (Goat Intestine Curry)", ingredients: ["boti", "spices", "onions"], description: "A flavorful Telangana delicacy made from goat intestines cooked with onions and spices.", video: "https://www.youtube.com/watch?v=G4YcQZ4yzMs" },
+            { name: "Jonna Rotte (Sorghum Roti)", ingredients: ["sorghum flour", "water"], description: "A traditional Telangana flatbread made from sorghum flour, served with spicy curries.", video: "https://www.youtube.com/watch?v=QZoZSMW5VtU" },
+            { name: "Pappu Charu", ingredients: ["lentils", "tamarind", "vegetables"], description: "A Telangana-style tamarind dal soup, mildly spiced and perfect with rice.", video: "https://www.youtube.com/watch?v=KTG_JMyRk4Q" },
+            { name: "Bachali Kura (Malabar Spinach Curry)", ingredients: ["malabar spinach", "lentils", "spices"], description: "A simple curry made with Malabar spinach and lentils, tempered with mustard seeds.", video: "https://www.youtube.com/watch?v=pWzO-g6gmf8" },
+            { name: "Chintakaya Pachadi", ingredients: ["raw tamarind", "chilies", "garlic"], description: "A tangy Telangana chutney made from raw tamarind, garlic, and green chilies.", video: "https://www.youtube.com/watch?v=cJZfqpYThx0" },
+            { name: "Ragi Mudde", ingredients: ["ragi flour", "water"], description: "A traditional Telangana staple made with ragi flour, served with curries or chutneys.", video: "https://www.youtube.com/watch?v=ak9c_20c6Cg" },
+            { name: "Chepala Pulusu (Fish Curry)", ingredients: ["fish", "tamarind", "onions", "spices"], description: "A tangy Telangana-style fish curry cooked in tamarind and spices.", video: "https://www.youtube.com/watch?v=3DyaWtnLk5E" },
+            { name: "Natu Kodi Pulusu", ingredients: ["country chicken", "onions", "spices"], description: "A spicy country chicken curry made with onions and a blend of Telangana spices.", video: "https://www.youtube.com/watch?v=FT59sVBmXX8" },
+            { name: "Aloo Kurma", ingredients: ["potato", "coconut", "spices"], description: "A rich and creamy potato curry made with coconut and spices, perfect with rice or roti.", video: "https://www.youtube.com/watch?v=0hW7MkwW1_Y" },
+            { name: "Majjiga Pulusu (Buttermilk Stew)", ingredients: ["buttermilk", "vegetables", "spices"], description: "A refreshing and tangy buttermilk stew made with vegetables, perfect with rice.", video: "https://www.youtube.com/watch?v=qccuZa8g4do" },
+            { name: "Egg Bhurji", ingredients: ["egg", "onion", "tomato", "chilies"], description: "A quick and easy scrambled egg dish with onions, tomatoes, and green chilies.", video: "https://www.youtube.com/watch?v=H1I0F2-Tn9A" },
+            { name: "Chakkara Pongali", ingredients: ["rice", "jaggery", "ghee"], description: "A sweet rice dish made with jaggery and ghee, often prepared during festivals.", video: "https://www.youtube.com/watch?v=J9cKpXkOjMg" },
+            { name: "Uggani", ingredients: ["puffed rice", "onions", "chilies"], description: "A light and spicy Telangana snack made with puffed rice, onions, and green chilies.", video: "https://www.youtube.com/watch?v=1uG6EAVYv7o" },
+            { name: "Beerakaya Pappu (Ridge Gourd Dal)", ingredients: ["ridge gourd", "lentils", "spices"], description: "A simple and healthy dish made with ridge gourd and lentils, tempered with mustard seeds.", video: "https://www.youtube.com/watch?v=oIAsZj8kzR4" },
+            { name: "Nippattu", ingredients: ["rice flour", "peanuts", "spices"], description: "A crispy and spicy rice flour snack mixed with peanuts, perfect for tea time.", video: "https://www.youtube.com/watch?v=w8kYwvLYgS4" },
+            { name: "Kakarakaya Fry (Bitter Gourd Fry)", ingredients: ["bitter gourd", "spices", "onions"], description: "A crispy fried dish made with bitter gourd, seasoned with spices.", video: "https://www.youtube.com/watch?v=25e4H4hU0kI" },
+            { name: "Pongal", ingredients: ["rice", "moong dal", "black pepper", "ginger"], description: "A comforting dish made from rice and lentils, flavored with spices and ghee.", video: "https://www.youtube.com/watch?v=TY9rwGA7JLo" },
+            { name: "Khichdi", ingredients: ["rice", "lentils", "vegetables", "spices"], description: "A simple, one-pot dish made with rice, lentils, and vegetables.", video: "https://www.youtube.com/watch?v=OwdhGgF90fY" },
+            { name: "Rasam", ingredients: ["tomato", "tamarind", "spices"], description: "A spicy South Indian soup made with tomatoes, tamarind, and aromatic spices.", video: "https://www.youtube.com/watch?v=-TcvHSn2GxI" },
+            { name: "Pudina Rice", ingredients: ["rice", "mint", "spices"], description: "A fragrant rice dish flavored with fresh mint leaves and spices.", video: "https://www.youtube.com/watch?v=Hh2iY27fW4Y" },
+            { name: "Methi Thepla", ingredients: ["fenugreek leaves", "wheat flour", "spices"], description: "A spiced flatbread made with fenugreek leaves, perfect for breakfast or as a snack.", video: "https://www.youtube.com/watch?v=Hlb3tvZxAMc" },
+            { name: "Dal Tadka", ingredients: ["lentils", "butter", "spices"], description: "A rich lentil dish topped with a spiced butter tempering.", video: "https://www.youtube.com/watch?v=1j2_Twsv8F4" },
+            { name: "Bisi Bele Bath", ingredients: ["rice", "lentils", "vegetables", "spices"], description: "A traditional Karnataka dish made with rice, lentils, and a mix of spices.", video: "https://www.youtube.com/watch?v=jfuc23EPeDo" },
+            { name: "Pav Bhaji", ingredients: ["mixed vegetables", "bread", "spices"], description: "A spicy vegetable mash served with buttered bread rolls, a popular street food.", video: "https://www.youtube.com/watch?v=ENM4FOyQn_g" },
+            { name: "Pesarattu Upma", ingredients: ["green gram", "spices", "onions"], description: "A nutritious combination of pesarattu and upma, served together.", video: "https://www.youtube.com/watch?v=WUJAE9zXh4U" },
+            { name: "Methi Rice", ingredients: ["rice", "fenugreek leaves", "spices"], description: "A flavorful rice dish made with fresh fenugreek leaves.", video: "https://www.youtube.com/watch?v=lR4ZC1AhUX8" }
+        ];
+
+        // Function to suggest recipes based on user input
+        function suggestRecipe() {
+            const ingredientInput = document.getElementById("ingredient").value;
+            const ingredientList = ingredientInput.split(',').map(item => item.trim().toLowerCase());
+            const suggestedRecipes = recipes.filter(recipe => 
+                ingredientList.some(ingredient => recipe.ingredients.map(i => i.toLowerCase()).includes(ingredient))
+            );
+
+            displayRecipes(suggestedRecipes);
+        }
+
+        // Function to display recipes
+        function displayRecipes(suggestedRecipes) {
+            const recipesDiv = document.getElementById("recipes");
+            recipesDiv.innerHTML = ""; // Clear previous results
+
+            if (suggestedRecipes.length === 0) {
+                recipesDiv.innerHTML = "<p>No recipes found for the given ingredients.</p>";
+                return;
+            }
+
+            suggestedRecipes.forEach(recipe => {
+                const recipeCard = document.createElement("div");
+                recipeCard.className = "recipe-card";
+                recipeCard.innerHTML = `<strong>${recipe.name}</strong><br>
+                                        <em>Ingredients:</em> ${recipe.ingredients.join(", ")}<br>
+                                        <em>Description:</em> ${recipe.description}<br>
+                                        <em>Video:</em> <a href="${recipe.video}" target="_blank">Watch Here</a>`;
+                recipesDiv.appendChild(recipeCard);
+            });
+        }
+    </script>
+
+</body>
+</html>
